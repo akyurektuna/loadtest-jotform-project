@@ -1,6 +1,7 @@
 import time,sys
 from flask import Flask,request,render_template
 from flask.helpers import url_for
+from flask.json.tag import JSONTag
 from werkzeug.utils import redirect
 
 app = Flask(__name__)
@@ -11,7 +12,7 @@ def get_current_time():
     
 @app.route('/api/input', methods = ['GET','POST'])
 def get_input():
-    if request.method=="POST":
-        place=request.form
-        return place
+            place=request.get_json()
+            return place
+
         
