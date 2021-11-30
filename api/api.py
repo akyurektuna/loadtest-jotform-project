@@ -1,10 +1,12 @@
 import time
+import datetime
 import sys
 from flask import Flask, request, render_template
 from flask.helpers import url_for
 from flask.json.tag import JSONTag
 from werkzeug.utils import redirect
 from requests_main import *
+from arrivalCalculation import *
 
 app = Flask(__name__)
 
@@ -17,18 +19,42 @@ def get_current_time():
 @app.route('/api/input', methods=['GET', 'POST'])
 def get_input():
     place = request.get_json()
-    formId = '212862025288053'
+    formId = '212851147550048'
     data = getFormQuestions(formId)
     content = data["content"]
     listP = convertTypeNames(content)
     jsonStr = serializeJson(listP)
+    #count and spawnRate are taken from app.js
     count = place["subcount"]
+    spawnRate = place["spawnrate"]
     codes = []
     times = []
     postBodyData = createMockData(jsonStr, count)
-    for i in range(int(count)):
-        resp = submitForm(postBodyData[i], formId)
+    
+    arrivalTimes = arrivalCalculationWithPoisson(count, spawnRate)
+    arrivingSeconds = calculateArrivingSeconds(arrivalTimes)
+    ##
+    currentTime = time.localtime()
+    result = time.strftime("%I:%M:%S", currentTime)
+    print("time before ",result)
+    print("arriving seconds: ", arrivingSeconds)
+    ##
+    temp = 0
+    j = 0
+    for i in arrivingSeconds:
+        print("waiting time in seconds: ",i-temp)
+        time.sleep(i-temp)
+        resp = submitForm(postBodyData[j], formId)
+        temp = i
+        j = j + 1
         codes.append(resp["responseCode"])
         times.append(resp["duration"])
+
     results = {"codes": codes, "times": times}
+    #
+    currentTime = time.localtime()
+    result = time.strftime("%I:%M:%S", currentTime)
+    print("time after ",result)
+    print("must last for: ", spawnRate)
+    #
     return results
