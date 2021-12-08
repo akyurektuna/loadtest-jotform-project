@@ -7,6 +7,7 @@ from flask.json.tag import JSONTag
 from werkzeug.utils import redirect
 from requests_main import *
 from arrivalCalculation import *
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 app = Flask(__name__)
 
@@ -33,25 +34,35 @@ def get_input():
     
     arrivalTimes = arrivalCalculationWithPoisson(count, spawnRate)
     arrivingSeconds = calculateArrivingSeconds(arrivalTimes)
-    ##
+   
+    #debug
     currentTime = time.localtime()
     result = time.strftime("%I:%M:%S", currentTime)
     print("time before ",result)
     print("arriving seconds: ", arrivingSeconds)
-    ##
+    #
+   
     temp = 0
     j = 0
-    for i in arrivingSeconds:
-        print("waiting time in seconds: ",i-temp)
-        time.sleep(i-temp)
-        resp = submitForm(postBodyData[j], formId)
-        temp = i
-        j = j + 1
-        codes.append(resp["responseCode"])
-        times.append(resp["duration"])
+   
+    #creating threads with max_worker default value
+    #Future objects are kept in processes[]
+    processes = []
+    with ThreadPoolExecutor() as executor:
+        for i in arrivingSeconds:
+            print("waiting time in seconds: ",i-temp)
+            time.sleep(i-temp)
+            processes.append(executor.submit(submitForm, postBodyData[j], formId))
+            temp = i
+            j = j + 1
 
-    results = {"codes": codes, "times": times}
-    #
+        for task in as_completed(processes):
+            codes.append(task.result()["responseCode"])
+            times.append(task.result()["duration"])
+
+        results = {"codes": codes, "times": times}
+   
+    #debug
     currentTime = time.localtime()
     result = time.strftime("%I:%M:%S", currentTime)
     print("time after ",result)

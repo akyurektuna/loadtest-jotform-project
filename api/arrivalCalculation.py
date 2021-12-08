@@ -35,6 +35,8 @@ def arrivalCalculationWithPoisson(n, timeSpan):
     #The events array now contains an array of event times which are approximate the #Poisson distribution with a mean arrival rate of mu per time interval.
     return arrivalTimes
 
+#arrivalTimes are kept in the [x:y] format
+#this method translates them to seconds
 def calculateArrivingSeconds(at):
     temp = 0
     arrivingSeconds = []
