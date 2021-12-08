@@ -19,15 +19,15 @@ def get_current_time():
 
 @app.route('/api/input', methods=['GET', 'POST'])
 def get_input():
-    place = request.get_json()
-    formId = '212851147550048'
+    resp = request.get_json()
+    formId = resp["formid"]
     data = getFormQuestions(formId)
     content = data["content"]
     listP = convertTypeNames(content)
     jsonStr = serializeJson(listP)
     #count and spawnRate are taken from app.js
-    count = place["subcount"]
-    spawnRate = place["spawnrate"]
+    count = resp["subcount"]
+    spawnRate = resp["spawnrate"]
     codes = []
     times = []
     postBodyData = createMockData(jsonStr, count)
@@ -58,9 +58,17 @@ def get_input():
 
         for task in as_completed(processes):
             codes.append(task.result()["responseCode"])
-            times.append(task.result()["duration"])
+            times.append(float(task.result()["duration"][:-2]))
 
-        results = {"codes": codes, "times": times}
+    # Finding average of response time and getting error count.
+    average= sum((times))/len(times)    
+    error_count=0
+    for i in range(len(codes)):
+        if codes[i]!=200:
+            error_count=error_count+1
+
+    #Preparing the response data.
+    results = {"codes": codes,"times": times,"average": average,"error":error_count}
    
     #debug
     currentTime = time.localtime()

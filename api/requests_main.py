@@ -8,7 +8,7 @@ def getFormQuestions(formId):
     #from id should be taken from the user
     #tuna apikey d7cf6727c091d4faecb509c7e9d26f99
     #ufuk apikey 5bb630dcd7b75679216357eb9073dba6
-    URL = "https://api.jotform.com/form/"+formId+"/questions?apiKey=d7cf6727c091d4faecb509c7e9d26f99"
+    URL = "https://api.jotform.com/form/"+formId+"/questions?apiKey=5bb630dcd7b75679216357eb9073dba6"
     r = requests.get(url = URL)
     return r.json()
 
@@ -73,8 +73,8 @@ def submitForm(reqBody,formId):
     #submitting mock data to form
     #this part will be repeated with the count number
     #tuna apikey d7cf6727c091d4faecb509c7e9d26f99
-    #ufuk apikey 5bb630dcd7b75679216357eb9073dba6 
-    URLson = "https://api.jotform.com/form/"+formId+"/submissions?apiKey=d7cf6727c091d4faecb509c7e9d26f99"
+    #ufuk apikey e0a5f3508d13cfe4724636dec7f2cd7c
+    URLson = "https://api.jotform.com/form/"+formId+"/submissions?apiKey=e0a5f3508d13cfe4724636dec7f2cd7c"
     reqPostForm= requests.post(url=URLson, data=reqBody)
     resp=reqPostForm.json()
     print(resp)

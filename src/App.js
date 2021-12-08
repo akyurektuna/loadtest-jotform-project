@@ -3,12 +3,21 @@ import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import axios from 'axios';
 function App() {
-  const [results, setresults] = useState("");
+  const [error,seterror]=useState(0)
+  const [average, setaverage] = useState(0)
+  const [isloading, setisloading] = useState(false)
+  const [count, setcount] = useState(0);
   //request from frontend to backend
   function Send_Form() {
     const navigate = useNavigate();
     const [spawnrate, setspawnrate] = useState(0);
     const [subcount, setsubcount] = useState(0);
+    const [formid, setformid] = useState(0)
+    const [results,setresults]=useState(0)
+
+    const handleformid = (event) => {
+      setformid(event.target.value)
+    }
 
     const handlespawnchange = (event) => {
       setspawnrate(event.target.value)
@@ -17,17 +26,23 @@ function App() {
       setsubcount(event.target.value)
     }
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
       e.preventDefault();
+      setisloading(true)
       var body = {
         subcount: subcount,
-        spawnrate: spawnrate
-
+        spawnrate: spawnrate,
+        formid: formid
       };
-      axios.post('/api/input', body)
+      await axios.post('/api/input', body)
         .then(function (response) {
           console.log(response);
+          // Getting required data from the response.
           setresults(response.data["times"])
+          setaverage(response.data["average"])
+          seterror(response.data["error"])
+          setcount(subcount)
+
         })
         .catch(function (error) {
           console.log(error);
@@ -37,43 +52,42 @@ function App() {
 
     return (
       <form onSubmit={handleSubmit}>
-        Spawn rate: <input type="number" value={spawnrate} onChange={handlespawnchange} />
-        <br />
-        Submisson count: <input type="number" value={subcount} onChange={handlesubchange} />
-        <p> <input type="submit" value="Submit" /></p>
+        <tr> Spawn rate : <input type="number" value={spawnrate} onChange={handlespawnchange} /></tr>
+        <tr> Submisson count : <input type="number" value={subcount} onChange={handlesubchange} /></tr>
+        <tr> FormID : <input type="number" value={formid} onChange={handleformid} /></tr>
+        <tr> Ufuk: '212862025288053' || Tuna: '212851147550048'</tr>
+        <tr><input type="submit" value="Run Test" /></tr>
       </form>
     );
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/results" element={<Results />} />
-          </Routes>
-        </BrowserRouter>
-      </header>
+    <div>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Input />} />
+          <Route path="/results" element={<Results />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
-  function Home() {
+
+  // Input and Result Pages
+  function Input() {
     return (
       <div className="App">
         <header className="App-header">
           {Send_Form()}
+          {isloading ? "Loading..." : null}
         </header>
       </div>
     )
   }
   function Results() {
     return (
-      <div className="App">
-        <header className="App-header">
-          The results are:
-          <br />
-          {results}
-        </header>
+      <div className="results-header">
+        Average response time: {average.toFixed(2)} / Errors: {error} / # Requests : {count}
+        {setisloading(false)}
       </div>
     )
   }
