@@ -11,17 +11,18 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 app = Flask(__name__)
 
-
 @app.route('/api/time')
 def get_current_time():
     return {'time': time.time()}
-
 
 @app.route('/api/input', methods=['GET', 'POST'])
 def get_input():
     resp = request.get_json()
     formId = resp["formid"]
-    data = getFormQuestions(formId)
+    #baseURL should be taken from the user
+    baseURL = "https://eejoinflowtest03nov2021test01.jotform.com"
+    apiKey = "2da27739ce924bcaeb7957ab145b24d2"
+    data = getFormQuestions(baseURL, formId, apiKey)
     content = data["content"]
     listP = convertTypeNames(content)
     jsonStr = serializeJson(listP)
@@ -52,13 +53,13 @@ def get_input():
         for i in arrivingSeconds:
             print("waiting time in seconds: ",i-temp)
             time.sleep(i-temp)
-            processes.append(executor.submit(submitForm, postBodyData[j], formId))
+            processes.append(executor.submit(submitForm, postBodyData[j], baseURL, formId))
             temp = i
             j = j + 1
 
         for task in as_completed(processes):
-            codes.append(task.result()["responseCode"])
-            times.append(float(task.result()["duration"][:-2]))
+            codes.append(task.result()[0])
+            times.append(float(task.result()[1][:-2]))
 
     # Finding average of response time and getting error count.
     average= sum((times))/len(times)    
