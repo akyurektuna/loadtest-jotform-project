@@ -81,7 +81,8 @@ def submitForm(reqBody, baseUrl,formId):
     pf = requests.post(url=URLson, data=reqBody, headers={'Content-Type': 'application/x-www-form-urlencoded'})
     dtAfter = datetime.now()
     duration = dtAfter - dtBefore
-    return [pf.status_code, str(duration.microseconds)]
+    durationMs = float(duration.microseconds)/1000
+    return [pf.status_code, str((durationMs))]
    
 # baseURL = "https://eejoinflowtest03nov2021test01.jotform.com"
 # formId = "213421479225049"

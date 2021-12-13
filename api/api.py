@@ -20,8 +20,9 @@ def get_input():
     resp = request.get_json()
     formId = resp["formid"]
     #baseURL should be taken from the user
+    #API Ufuk:507c5cf8b99fbed83bbeb42d3d0d7e1f || Tuna: 2da27739ce924bcaeb7957ab145b24d2
     baseURL = "https://eejoinflowtest03nov2021test01.jotform.com"
-    apiKey = "2da27739ce924bcaeb7957ab145b24d2"
+    apiKey = "507c5cf8b99fbed83bbeb42d3d0d7e1f"
     data = getFormQuestions(baseURL, formId, apiKey)
     content = data["content"]
     listP = convertTypeNames(content)
@@ -56,10 +57,11 @@ def get_input():
             processes.append(executor.submit(submitForm, postBodyData[j], baseURL, formId))
             temp = i
             j = j + 1
-
+      
         for task in as_completed(processes):
+            print(task.result())
             codes.append(task.result()[0])
-            times.append(float(task.result()[1][:-2]))
+            times.append(float(task.result()[1]))
 
     # Finding average of response time and getting error count.
     average= sum((times))/len(times)    
