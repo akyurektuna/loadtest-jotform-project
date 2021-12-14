@@ -2,6 +2,11 @@ import './App.css';
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.css'
+import { Navbar, Button, Form, Container, Row, Col } from 'react-bootstrap'
+import { logDOM } from '@testing-library/react';
+import logo from "./jotform-logo2.png";
+
 function App() {
   const [error,seterror]=useState(0)
   const [average, setaverage] = useState(0)
@@ -51,18 +56,66 @@ function App() {
     }
 
     return (
-      <form onSubmit={handleSubmit}>
-        <tr> Spawn rate : <input type="number" value={spawnrate} onChange={handlespawnchange} /></tr>
-        <tr> Submisson count : <input type="number" value={subcount} onChange={handlesubchange} /></tr>
-        <tr> FormID : <input type="number" value={formid} onChange={handleformid} /></tr>
-        <tr> Ufuk: '213462437487058' || Tuna: '212851147550048'</tr>
-        <tr><input type="submit" value="Run Test" /></tr>
-      </form>
+      <div class="centered">
+
+      <Container>
+        
+      <Form onSubmit={handleSubmit}>
+        <Form.Group as= {Row} >
+          <Form.Label column sm="2" >Test Duration</Form.Label>
+          <Col sm="3">
+          <Form.Control type="number"
+            value={spawnrate}
+            onChange={handlespawnchange} 
+            />
+          <Form.Text className = "text-muted">
+            ne kadar zaman
+            </Form.Text>
+            </Col>
+        </Form.Group>
+
+        <Form.Group as= {Row}>
+          <Form.Label column sm = "2">Number of Clients</Form.Label>
+          <Col sm="3">
+          <Form.Control type="number"
+            value={subcount}
+            onChange={handlesubchange} 
+            />
+          <Form.Text className = "text-muted">
+            kac user filan
+            </Form.Text>
+            </Col>
+        </Form.Group>
+
+        <Form.Group as= {Row}>
+          <Form.Label column sm = "2" >Form ID</Form.Label>
+          <Col sm="3">
+          <Form.Control type="number"
+            value={formid}
+            onChange={handleformid} 
+            />
+          <Form.Text className = "text-muted">
+           form idsi
+            </Form.Text>
+            </Col>
+        </Form.Group>
+        <Button variant="secondary" type="submit" >Run Test</Button>
+        </Form>
+
+      </Container>
+      </div>
     );
+
   }
 
   return (
     <div>
+      <Navbar bg="jotformBlue"> 
+        <Navbar.Brand>
+          <img src = {logo} />
+        </Navbar.Brand>
+      </Navbar>
+
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Input />} />
