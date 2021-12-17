@@ -1,24 +1,25 @@
 import time
-import datetime
-import sys
-from flask import Flask, request, render_template
-from flask.helpers import url_for
-from flask.json.tag import JSONTag
-from werkzeug.utils import redirect
+from flask import Flask, request
 from requests_main import *
 from arrivalCalculation import *
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from flask import Flask
+from flask_socketio import SocketIO, emit, send
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'mysecret'
 
-@app.route('/api/time')
-def get_current_time():
-    return {'time': time.time()}
+socketIo = SocketIO(app, cors_allowed_origins="*")
 
-@app.route('/api/input', methods=['GET', 'POST'])
-def get_input():
-    resp = request.get_json()
-    formId = resp["formid"]
+app.debug = True
+app.host = 'localhost'
+
+
+
+@socketIo.on("message")
+def get_input(input):
+    print(input)
+    formId = input["formid"]
     #baseURL should be taken from the user
     #API Ufuk:507c5cf8b99fbed83bbeb42d3d0d7e1f || Tuna: 2da27739ce924bcaeb7957ab145b24d2
     baseURL = "https://eejoinflowtest03nov2021test01.jotform.com"
@@ -28,8 +29,8 @@ def get_input():
     listP = convertTypeNames(content)
     jsonStr = serializeJson(listP)
     #count and spawnRate are taken from app.js
-    count = resp["subcount"]
-    spawnRate = resp["spawnrate"]
+    count = input["subcount"]
+    spawnRate = input["spawnrate"]
     codes = []
     times = []
     postBodyData = createMockData(jsonStr, count)
@@ -54,29 +55,24 @@ def get_input():
         for i in arrivingSeconds:
             print("waiting time in seconds: ",i-temp)
             time.sleep(i-temp)
-            processes.append(executor.submit(submitForm, postBodyData[j], baseURL, formId))
+            task=executor.submit(submitForm, postBodyData[j], baseURL, formId)
+            print(task.result())
+            resp_time=task.result()[1]
+            print(resp_time)
+            send(resp_time)
             temp = i
             j = j + 1
-      
-        for task in as_completed(processes):
-            print(task.result())
-            codes.append(task.result()[0])
-            times.append(float(task.result()[1]))
-
+           
     # Finding average of response time and getting error count.
-    average= sum((times))/len(times)    
-    error_count=0
-    for i in range(len(codes)):
-        if codes[i]!=200:
-            error_count=error_count+1
-
-    #Preparing the response data.
-    results = {"codes": codes,"times": times,"average": average,"error":error_count}
-   
+    #Preparing the response data
     #debug
     currentTime = time.localtime()
     result = time.strftime("%I:%M:%S", currentTime)
     print("time after ",result)
     print("must last for: ", spawnRate)
     #
-    return results
+
+    return None
+    
+if __name__ == '__main__':
+    socketIo.run(app)

@@ -1,18 +1,31 @@
 import './App.css';
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
-import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.css'
 import { Navbar, Button, Form, Container, Row, Col } from 'react-bootstrap'
-import { logDOM } from '@testing-library/react';
 import logo from "./jotform-logo2.png";
+import io from "socket.io-client";
 
-function App() {
-  const [error,seterror]=useState(0)
-  const [average, setaverage] = useState(0)
+let endPoint = "http://localhost:5000";
+let socket = io.connect(`${endPoint}`);
+
+
+
+const App = () => {
   const [isloading, setisloading] = useState(false)
-  const [count, setcount] = useState(0);
+  const[times,set_times]=useState([0])
   //request from frontend to backend
+
+  useEffect(() => {
+    getresults();
+  }, [times.length]);
+
+  const getresults = () => {
+    socket.on("message", msg => {
+      set_times([...times, msg]);
+    });
+  };
+  
   function Send_Form() {
     const navigate = useNavigate();
     const [spawnrate, setspawnrate] = useState(0);
@@ -39,19 +52,7 @@ function App() {
         spawnrate: spawnrate,
         formid: formid
       };
-      await axios.post('/api/input', body)
-        .then(function (response) {
-          console.log(response);
-          // Getting required data from the response.
-          setresults(response.data["times"])
-          setaverage(response.data["average"])
-          seterror(response.data["error"])
-          setcount(subcount)
-
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+      socket.emit("message",body);
       navigate('/results')
     }
 
@@ -138,9 +139,13 @@ function App() {
   }
   function Results() {
     return (
-      <div className="results-header">
-        Average response time: {average.toFixed(2)} / Errors: {error} / # Requests : {count}
-        {setisloading(false)}
+      <div>
+         {times.length > 0 &&
+        times.map(msg => (
+          <div>
+            <p>{msg}</p>
+          </div>
+        ))}
       </div>
     )
   }
