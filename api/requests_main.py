@@ -3,7 +3,7 @@ import json
 from requests import api
 from requests.structures import CaseInsensitiveDict
 from marshmallow import Schema, fields
-from datetime import datetime
+import datetime
 
 def getFormQuestions(baseUrl, formId, apiKey):
     #get request for questions in the form
@@ -77,12 +77,13 @@ def submitForm(reqBody, baseUrl,formId):
     #tuna apikey d7cf6727c091d4faecb509c7e9d26f99
     #ufuk apikey e0a5f3508d13cfe4724636dec7f2cd7c
     URLson = baseUrl + "/submit/" + formId
-    dtBefore = datetime.now()
+    timeBefore = datetime.datetime.now()
     pf = requests.post(url=URLson, data=reqBody, headers={'Content-Type': 'application/x-www-form-urlencoded'})
-    dtAfter = datetime.now()
-    duration = dtAfter - dtBefore
-    durationMs = float(duration.microseconds)/1000
-    return [pf.status_code, str((durationMs))]
+    timeAfter = datetime.datetime.now()
+    diff = timeAfter - timeBefore
+    #execution time in milliseconds
+    exectime = diff.total_seconds()*1000
+    return [pf.status_code, str((exectime))]
    
 # baseURL = "https://eejoinflowtest03nov2021test01.jotform.com"
 # formId = "213421479225049"

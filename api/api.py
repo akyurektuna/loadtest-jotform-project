@@ -58,8 +58,13 @@ def get_input(input):
             task=executor.submit(submitForm, postBodyData[j], baseURL, formId)
             print(task.result())
             resp_time=task.result()[1]
+            data = {
+                "name": j,
+                "value": resp_time
+            }
             print(resp_time)
-            send(resp_time)
+            send(data)
+
             temp = i
             j = j + 1
            

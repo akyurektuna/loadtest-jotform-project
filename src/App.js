@@ -5,6 +5,15 @@ import 'bootstrap/dist/css/bootstrap.css'
 import { Navbar, Button, Form, Container, Row, Col } from 'react-bootstrap'
 import logo from "./jotform-logo2.png";
 import io from "socket.io-client";
+import {
+  BarChart,
+  Bar,
+  Line,
+  LineChart,
+  XAxis,
+  YAxis,
+  Tooltip
+} from 'recharts';
 
 let endPoint = "http://localhost:5000";
 let socket = io.connect(`${endPoint}`);
@@ -16,15 +25,15 @@ const App = () => {
   const[times,set_times]=useState([0])
   //request from frontend to backend
 
-  useEffect(() => {
-    getresults();
-  }, [times.length]);
+  // useEffect(() => {
+  //   getresults();
+  // }, [times.length]);
 
-  const getresults = () => {
-    socket.on("message", msg => {
-      set_times([...times, msg]);
-    });
-  };
+  // const getresults = () => {
+  //   socket.on("message", msg => {
+  //     set_times([...times, msg]);
+  //   });
+  // };
   
   function Send_Form() {
     const navigate = useNavigate();
@@ -137,15 +146,32 @@ const App = () => {
       </div>
     )
   }
+
   function Results() {
+    const [data, setData] = useState([]);
+    
+    useEffect(() =>{
+      socket.on("message", (msg) => {
+        setData((currentData)=> [...currentData, msg]);
+      });
+    }, []);
+
     return (
       <div>
-         {times.length > 0 &&
+        <h1>Response Time</h1>
+        <LineChart width={500} height={300} data={data}>
+          <XAxis dataKey="name"/>
+          <YAxis/>
+          <Line dataKey="value" />
+        </LineChart>
+        
+        
+         {/* {times.length > 0 &&
         times.map(msg => (
           <div>
             <p>{msg}</p>
           </div>
-        ))}
+        ))} */}
       </div>
     )
   }
