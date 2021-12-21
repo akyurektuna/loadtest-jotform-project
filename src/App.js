@@ -177,9 +177,13 @@ const App = () => {
 
   function Results() {
     const [data, setData] = useState([]);
+    const[average,set_average]=useState(0);
+    const[errors,set_errors]=useState(0);
     
     useEffect(() =>{
       socket.on("message", (msg) => {
+        set_errors(msg["errors"])
+        set_average(msg["average"])
         setData((currentData)=> [...currentData, msg]);
       });
     }, []);
@@ -192,6 +196,9 @@ const App = () => {
           <YAxis/>
           <Line dataKey="value" />
         </LineChart>
+        <h1>The Average is: {average.toFixed(2)}ms</h1> 
+        <h1>Number of Errors: {errors}</h1> 
+
         
         
          {/* {times.length > 0 &&

@@ -33,7 +33,7 @@ def get_input(input):
     #baseURL should be taken from the user
     #API Ufuk:507c5cf8b99fbed83bbeb42d3d0d7e1f || Tuna: 2da27739ce924bcaeb7957ab145b24d2
     baseURL = "https://eejoinflowtest03nov2021test01.jotform.com"
-    apiKey = "2da27739ce924bcaeb7957ab145b24d2"
+    apiKey = "507c5cf8b99fbed83bbeb42d3d0d7e1f"
     data = getFormQuestions(baseURL, formId, apiKey)
     content = data["content"]
     listP = convertTypeNames(content)
@@ -41,8 +41,10 @@ def get_input(input):
     #count and spawnRate are taken from app.js
     count = input["subcount"]
     spawnRate = input["spawnrate"]
-    codes = []
-    times = []
+    total_time=0
+    average=0
+    code=0
+    errors=0
     postBodyData = createMockData(jsonStr, count)
     
     arrivalTimes = arrivalCalculationWithPoisson(count, spawnRate)
@@ -56,7 +58,7 @@ def get_input(input):
     #
    
     temp = 0
-    j = 0
+    j = 1
    
     #creating threads with max_worker default value
     #Future objects are kept in processes[]
@@ -68,9 +70,17 @@ def get_input(input):
             task=executor.submit(submitForm, postBodyData[j], baseURL, formId)
             print(task.result())
             resp_time=task.result()[1]
+            code=int(task.result()[0])
+            if(code!=200):
+                errors=errors+1
+            total_time=total_time+float(resp_time)
+            average=float(total_time)/j
+            
             data = {
                 "name": j,
-                "value": resp_time
+                "value": resp_time,
+                "average":average,
+                "errors":errors
             }
             print(resp_time)
             send(data)
