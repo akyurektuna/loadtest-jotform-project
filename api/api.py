@@ -1,20 +1,30 @@
 import time
-from flask import Flask, request
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from dotenv import load_dotenv
+import psycopg2
+import os
 from requests_main import *
 from arrivalCalculation import *
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from flask import Flask
 from flask_socketio import SocketIO, emit, send
 
+load_dotenv()
+# PostgreSQL Database credentials loaded from the .env file
+DATABASE = os.getenv('DATABASE')
+DATABASE_USERNAME = os.getenv('DATABASE_USERNAME')
+DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD')
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
+
+CORS(app)
 
 socketIo = SocketIO(app, cors_allowed_origins="*")
 
 app.debug = True
 app.host = 'localhost'
-
-
 
 @socketIo.on("message")
 def get_input(input):
@@ -81,3 +91,22 @@ def get_input(input):
     
 if __name__ == '__main__':
     socketIo.run(app)
+
+try:
+    con = psycopg2.connect(
+        database=DATABASE,
+        user=DATABASE_USERNAME,
+        password=DATABASE_PASSWORD)
+
+    cur = con.cursor()
+
+    # GET: Fetch all test from the database
+    @app.route('/')
+    def fetch_all_tests():
+        cur.execute('SELECT * FROM tests')
+        rows = cur.fetchall()
+        print(rows)
+
+        return jsonify(rows)
+except:
+    print('Error')

@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useState,useEffect } from 'react';
+import React, { Fragment, useState,useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.css'
 import { Navbar, Button, Form, Container, Row, Col } from 'react-bootstrap'
@@ -21,6 +21,30 @@ let socket = io.connect(`${endPoint}`);
 
 
 const App = () => {
+  //deneme
+    useEffect(() => {
+      const getAPI = () => {
+          // Change this endpoint to whatever local or online address you have
+          // Local PostgreSQL Database
+          const API = 'http://127.0.0.1:5000/';
+
+          fetch(API)
+              .then((response) => {
+                  console.log(response);
+                  return response.json();
+              })
+              .then((data) => {
+                  console.log(data);
+                  setLoading(false);
+                  setApiData(data);
+              });
+      };
+      getAPI();
+  }, []);
+  const [apiData, setApiData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  //deneme
+
   const [isloading, setisloading] = useState(false)
   const[times,set_times]=useState([0])
   //request from frontend to backend
@@ -119,7 +143,9 @@ const App = () => {
   }
 
   return (
+    
     <div>
+
       <Navbar bg="jotformBlue"> 
         <Navbar.Brand>
           <img src = {logo} />
@@ -130,6 +156,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Input />} />
           <Route path="/results" element={<Results />} />
+          <Route path="/listTests" element= {<ListTests />}/>
         </Routes>
       </BrowserRouter>
     </div>
@@ -146,6 +173,7 @@ const App = () => {
       </div>
     )
   }
+
 
   function Results() {
     const [data, setData] = useState([]);
@@ -175,6 +203,74 @@ const App = () => {
       </div>
     )
   }
+  function ListTests() {
+  //deneme
+  useEffect(() => {
+    const getAPI = () => {
+        // Change this endpoint to whatever local or online address you have
+        // Local PostgreSQL Database
+        const API = 'http://127.0.0.1:5000/';
+
+        fetch(API)
+            .then((response) => {
+                console.log(response);
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data);
+                setLoading(false);
+                setApiData(data);
+            });
+    };
+    getAPI();
+}, []);
+const [apiData, setApiData] = useState([]);
+const [loading, setLoading] = useState(true);
+//deneme
+
+    return (
+      <div>
+      {/* listeleme kismi  */}
+      
+                {loading === true ? (
+                    <div>
+                        <h1>Loading...</h1>
+                    </div>
+                ) : (
+                    <section>
+                        {apiData.map((movie) => {
+                            const testId = movie[0];
+                            const testImgUrl = movie[1];
+                            const avgRespTime = movie[2];
+                            const errorCount = movie[3];
+                            const testDate = movie[4];
+
+                            return (
+                                <div className="test-container" key={String(testId)}>
+
+                                    <img src={testImgUrl}/>
+                                    <p>
+                                        <strong>resp time:</strong> {avgRespTime}
+                                    </p>
+                                    <p>
+                                        <strong>error count:</strong> {errorCount}
+                                    </p>
+                                    <p>
+                                        <strong>test date:</strong> {testDate}
+                                    </p>
+                                </div>
+                            );
+                        })}
+                    </section>
+                )}
+            
+            {/* listeleme kismi */}
+      </div>
+    )
+  }
+
+
+
 }
 
 export default App;
