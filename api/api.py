@@ -33,7 +33,7 @@ def get_input(input):
     #baseURL should be taken from the user
     #API Ufuk:507c5cf8b99fbed83bbeb42d3d0d7e1f || Tuna: 2da27739ce924bcaeb7957ab145b24d2
     baseURL = "https://eejoinflowtest03nov2021test01.jotform.com"
-    apiKey = "507c5cf8b99fbed83bbeb42d3d0d7e1f"
+    apiKey = "2da27739ce924bcaeb7957ab145b24d2"
     data = getFormQuestions(baseURL, formId, apiKey)
     content = data["content"]
     listP = convertTypeNames(content)

@@ -2,7 +2,7 @@ import './App.css';
 import React, { Fragment, useState,useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.css'
-import { Navbar, Button, Form, Container, Row, Col } from 'react-bootstrap'
+import { Navbar, Nav, Button, Form, Container, Row, Col } from 'react-bootstrap'
 import logo from "./jotform-logo2.png";
 import io from "socket.io-client";
 import {
@@ -148,8 +148,12 @@ const App = () => {
 
       <Navbar bg="jotformBlue"> 
         <Navbar.Brand>
-          <img src = {logo} />
+          <img src = {logo} /> {' '}
         </Navbar.Brand>
+        <Nav>
+        <Nav.Link href="\">New Test</Nav.Link>
+          <Nav.Link href="ListTests">List Tests</Nav.Link>
+        </Nav>
       </Navbar>
 
       <BrowserRouter>
