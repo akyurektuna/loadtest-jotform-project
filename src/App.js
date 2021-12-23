@@ -1,18 +1,15 @@
 import './App.css';
-import React, { Fragment, useState,useEffect, useCallback } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import React, { useState,useEffect, useCallback } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.css'
-import { Navbar, Nav, Button, Form, Container, Row, Col } from 'react-bootstrap'
+import { Navbar, Nav, Button, Form, Container, Row, Col, Badge } from 'react-bootstrap'
 import logo from "./jotform-logo2.png";
 import io from "socket.io-client";
 import {
-  BarChart,
-  Bar,
   Line,
   LineChart,
   XAxis,
-  YAxis,
-  Tooltip
+  YAxis
 } from 'recharts';
 import { useCurrentPng } from 'recharts-to-png';
 import FileSaver from 'file-saver';
@@ -24,20 +21,20 @@ const App = () => {
   //deneme
     useEffect(() => {
       const getAPI = () => {
-          // Change this endpoint to whatever local or online address you have
-          // Local PostgreSQL Database
-          const API = 'http://127.0.0.1:5000/';
+        // Change this endpoint to whatever local or online address you have
+        // Local PostgreSQL Database
+        const API = 'http://127.0.0.1:5000/';
 
-          fetch(API)
-              .then((response) => {
-                  console.log(response);
-                  return response.json();
-              })
-              .then((data) => {
-                  console.log(data);
-                  setLoading(false);
-                  setApiData(data);
-              });
+        fetch(API)
+            .then((response) => {
+              console.log(response);
+              return response.json();
+            })
+            .then((data) => {
+              console.log(data);
+              setLoading(false);
+              setApiData(data);
+            });
       };
       getAPI();
   }, []);
@@ -45,40 +42,22 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   //deneme
 
-   //PNG INDIRME ->
-    // useCurrentPng usage (isLoading is optional)
-    const [getPng, { ref: lineRef }] = useCurrentPng();
-
-    // Can also pass in options for html2canvas
-    // const [getPng, { ref }] = useCurrentPng({ backgroundColor: '#000' });
-  
-    const handleDownload = useCallback(async () => {
-      console.log("line 57");
-      const png = await getPng();
-      console.log(png);
-      // Verify that png is not undefined
-      if (png) {
-        // Download with FileSaver
-        console.log("line 61/png geldi mi");
-        FileSaver.saveAs(png, 'myChart.png');
-        
-      }
-    }, [getPng]);
+  //PNG INDIRME ->
+  // useCurrentPng usage (isLoading is optional)
+  const [getPng, { ref: lineRef }] = useCurrentPng();
+  const handleDownload = useCallback(async () => {
+    const png = await getPng();
+    console.log(png);
+    // Verify that png is not undefined
+    if (png) {
+      // Download with FileSaver
+      FileSaver.saveAs(png, 'myChart.png');
+    }
+  }, [getPng]);
 
   const [isloading, setisloading] = useState(false)
   const[times,set_times]=useState([0])
-  //request from frontend to backend
 
-  // useEffect(() => {
-  //   getresults();
-  // }, [times.length]);
-
-  // const getresults = () => {
-  //   socket.on("message", msg => {
-  //     set_times([...times, msg]);
-  //   });
-  // };
-  
   function Send_Form() {
     const navigate = useNavigate();
     const [spawnrate, setspawnrate] = useState(0);
@@ -111,9 +90,7 @@ const App = () => {
 
     return (
       <div class="centered">
-
-      <Container>
-        
+      <Container>     
       <Form onSubmit={handleSubmit}>
         <Form.Group as= {Row} >
           <Form.Label column sm="2" >Test Duration</Form.Label>
@@ -165,7 +142,6 @@ const App = () => {
   return (
     
     <div>
-
       <Navbar bg="jotformBlue"> 
         <Navbar.Brand>
           <img src = {logo} /> {' '}
@@ -181,10 +157,12 @@ const App = () => {
           <Route path="/" element={<Input />} />
           <Route path="/results" element={<Results />} />
           <Route path="/listTests" element= {<ListTests />}/>
+          <Route path="/:id" element= {<ShowTest />}/>
         </Routes>
       </BrowserRouter>
     </div>
   );
+
 
   // Input and Result Pages
   function Input() {
@@ -197,7 +175,6 @@ const App = () => {
       </div>
     )
   }
-
 
   function Results() {
     const [data, setData] = useState([]);
@@ -228,86 +205,119 @@ const App = () => {
       </div>
         <h1>The Average is: {average.toFixed(2)}ms</h1> 
         <h1>Number of Errors: {errors}</h1> 
-
-        
-        
-         {/* {times.length > 0 &&
-        times.map(msg => (
-          <div>
-            <p>{msg}</p>
-          </div>
-        ))} */}
       </div>
     )
   }
-  function ListTests() {
-  //deneme
-  useEffect(() => {
-    const getAPI = () => {
+
+  function ShowTest(){
+    let { id } = useParams();
+    //const param = 1
+    //deneme
+    useEffect(() => {
+      const getAPI = () => {
         // Change this endpoint to whatever local or online address you have
         // Local PostgreSQL Database
         const API = 'http://127.0.0.1:5000/';
 
         fetch(API)
-            .then((response) => {
-                console.log(response);
-                return response.json();
-            })
-            .then((data) => {
-                console.log(data);
-                setLoading(false);
-                setApiData(data);
-            });
-    };
-    getAPI();
-}, []);
-const [apiData, setApiData] = useState([]);
-const [loading, setLoading] = useState(true);
-//deneme
+          .then((response) => {
+            console.log(response);
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data);
+            setLoading(false);
+            setApiData(data);
+          });
+      };
+      getAPI();
+    }, []);
+    const [apiData, setApiData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    //deneme
 
     return (
       <div>
-      {/* listeleme kismi  */}
-      
-                {loading === true ? (
+        {loading === true ? (
+          <div> <h1>Loading...</h1> </div>
+          ) : (
+            <section>
+              {apiData.map((test) => {
+                const testId = test[0];
+                const testImgUrl = test[1];
+                const avgRespTime = test[2];
+                const errorCount = test[3];
+                const testDate = test[4];
+                if(testId == id){
+                  return (
                     <div>
-                        <h1>Loading...</h1>
+                      <img src={testImgUrl}/>
+                        <p> <strong>resp time:</strong> {avgRespTime} </p>
+                        <p> <strong>error count:</strong> {errorCount} </p>
+                        <p> <strong>test date:</strong> {testDate} </p>
                     </div>
-                ) : (
-                    <section>
-                        {apiData.map((movie) => {
-                            const testId = movie[0];
-                            const testImgUrl = movie[1];
-                            const avgRespTime = movie[2];
-                            const errorCount = movie[3];
-                            const testDate = movie[4];
+                  );
+                }
 
-                            return (
-                                <div className="test-container" key={String(testId)}>
-
-                                    <img src={testImgUrl}/>
-                                    <p>
-                                        <strong>resp time:</strong> {avgRespTime}
-                                    </p>
-                                    <p>
-                                        <strong>error count:</strong> {errorCount}
-                                    </p>
-                                    <p>
-                                        <strong>test date:</strong> {testDate}
-                                    </p>
-                                </div>
-                            );
-                        })}
-                    </section>
-                )}
-            
-            {/* listeleme kismi */}
+              })}
+            </section>
+          )}
       </div>
     )
   }
 
 
+  function ListTests() {
+  //deneme
+    useEffect(() => {
+      const getAPI = () => {
+        // Change this endpoint to whatever local or online address you have
+        // Local PostgreSQL Database
+        const API = 'http://127.0.0.1:5000/';
 
+        fetch(API)
+          .then((response) => {
+            console.log(response);
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data);
+            setLoading(false);
+            setApiData(data);
+          });
+      };
+      getAPI();
+    }, []);
+    const [apiData, setApiData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    //deneme
+
+    return (
+      <div>
+        {loading === true ? (
+          <div> <h1>Loading...</h1> </div>
+          ) : (
+            <section>
+              {apiData.map((test) => {
+                const testId = test[0];
+                const testImgUrl = test[1];
+                const avgRespTime = test[2];
+                const errorCount = test[3];
+                const testDate = test[4];
+
+                return (
+                  <div class="list-group ">
+                    <a href={`${testId}`} class="list-group-item list-group-item-action" > Test {testId} 
+                      {' '}<Badge bg="secondary">finished</Badge>
+                    </a>
+                  </div>
+                );
+              })}
+            </section>
+          )}
+      </div>
+    )
+  }
 }
 
 export default App;
