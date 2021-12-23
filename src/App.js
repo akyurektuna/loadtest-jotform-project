@@ -1,5 +1,5 @@
 import './App.css';
-import React, { Fragment, useState,useEffect } from 'react';
+import React, { Fragment, useState,useEffect, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.css'
 import { Navbar, Nav, Button, Form, Container, Row, Col } from 'react-bootstrap'
@@ -14,11 +14,11 @@ import {
   YAxis,
   Tooltip
 } from 'recharts';
+import { useCurrentPng } from 'recharts-to-png';
+import FileSaver from 'file-saver';
 
 let endPoint = "http://localhost:5000";
 let socket = io.connect(`${endPoint}`);
-
-
 
 const App = () => {
   //deneme
@@ -44,6 +44,26 @@ const App = () => {
   const [apiData, setApiData] = useState([]);
   const [loading, setLoading] = useState(true);
   //deneme
+
+   //PNG INDIRME ->
+    // useCurrentPng usage (isLoading is optional)
+    const [getPng, { ref: lineRef }] = useCurrentPng();
+
+    // Can also pass in options for html2canvas
+    // const [getPng, { ref }] = useCurrentPng({ backgroundColor: '#000' });
+  
+    const handleDownload = useCallback(async () => {
+      console.log("line 57");
+      const png = await getPng();
+      console.log(png);
+      // Verify that png is not undefined
+      if (png) {
+        // Download with FileSaver
+        console.log("line 61/png geldi mi");
+        FileSaver.saveAs(png, 'myChart.png');
+        
+      }
+    }, [getPng]);
 
   const [isloading, setisloading] = useState(false)
   const[times,set_times]=useState([0])
@@ -194,12 +214,18 @@ const App = () => {
 
     return (
       <div>
+        <div className='line chart' >
         <h1>Response Time</h1>
-        <LineChart width={500} height={300} data={data}>
+        <LineChart width={500} height={300} data={data} ref={lineRef}>
           <XAxis dataKey="name"/>
           <YAxis/>
           <Line dataKey="value" />
         </LineChart>
+        <br />
+        <button onClick={handleDownload}>
+        <code>Download line chart</code>
+      </button>
+      </div>
         <h1>The Average is: {average.toFixed(2)}ms</h1> 
         <h1>Number of Errors: {errors}</h1> 
 
