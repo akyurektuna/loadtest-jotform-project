@@ -4,7 +4,9 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import psycopg2
 import os
+from datetime import date
 from requests_main import *
+from database_insert import *
 from arrivalCalculation import *
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from flask import Flask
@@ -21,6 +23,8 @@ app.config['SECRET_KEY'] = 'mysecret'
 
 CORS(app)
 
+final_data={}
+
 socketIo = SocketIO(app, cors_allowed_origins="*")
 
 app.debug = True
@@ -33,7 +37,7 @@ def get_input(input):
     #baseURL should be taken from the user
     #API Ufuk:507c5cf8b99fbed83bbeb42d3d0d7e1f || Tuna: 2da27739ce924bcaeb7957ab145b24d2
     baseURL = "https://eejoinflowtest03nov2021test01.jotform.com"
-    apiKey = "2da27739ce924bcaeb7957ab145b24d2"
+    apiKey = "507c5cf8b99fbed83bbeb42d3d0d7e1f"
     data = getFormQuestions(baseURL, formId, apiKey)
     content = data["content"]
     listP = convertTypeNames(content)
@@ -46,7 +50,9 @@ def get_input(input):
     code=0
     errors=0
     postBodyData = createMockData(jsonStr, count)
-    
+    today = datetime.datetime.now().date()
+    d1 = today.strftime("%d/%m/%Y")
+    temp_url='https://static.metacritic.com/images/products/movies/9/08b5f3a45845fa3b6d1cb5f4978b5081-250h.jpg'
     arrivalTimes = arrivalCalculationWithPoisson(count, spawnRate)
     arrivingSeconds = calculateArrivingSeconds(arrivalTimes)
    
@@ -58,7 +64,7 @@ def get_input(input):
     #
    
     temp = 0
-    j = 1
+    j = 0
    
     #creating threads with max_worker default value
     #Future objects are kept in processes[]
@@ -74,10 +80,10 @@ def get_input(input):
             if(code!=200):
                 errors=errors+1
             total_time=total_time+float(resp_time)
-            average=float(total_time)/j
+            average=float(total_time)/(j+1)
             
             data = {
-                "name": j,
+                "name": j+1,
                 "value": resp_time,
                 "average":average,
                 "errors":errors
@@ -95,8 +101,9 @@ def get_input(input):
     result = time.strftime("%I:%M:%S", currentTime)
     print("time after ",result)
     print("must last for: ", spawnRate)
+    final_data=data
     #
-
+    insert_test(temp_url,average,errors,d1)
     return None
     
 if __name__ == '__main__':
@@ -116,7 +123,7 @@ try:
         cur.execute('SELECT * FROM tests')
         rows = cur.fetchall()
         print(rows)
-
+        
         return jsonify(rows)
 except:
     print('Error')
