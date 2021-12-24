@@ -97,6 +97,7 @@ def get_input(input):
     # Finding average of response time and getting error count.
     #Preparing the response data
     #debug
+
     currentTime = time.localtime()
     result = time.strftime("%I:%M:%S", currentTime)
     print("time after ",result)

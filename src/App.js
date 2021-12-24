@@ -13,6 +13,8 @@ import {
 } from 'recharts';
 import { useCurrentPng } from 'recharts-to-png';
 import FileSaver from 'file-saver';
+import { PDFDownloadLink, Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+
 
 let endPoint = "http://localhost:5000";
 let socket = io.connect(`${endPoint}`);
@@ -211,7 +213,6 @@ const App = () => {
 
   function ShowTest(){
     let { id } = useParams();
-    //const param = 1
     //deneme
     useEffect(() => {
       const getAPI = () => {
@@ -235,6 +236,55 @@ const App = () => {
     const [apiData, setApiData] = useState([]);
     const [loading, setLoading] = useState(true);
     //deneme
+    const styles = StyleSheet.create({
+      page: {
+        flexDirection: 'row',
+        backgroundColor: '#E4E4E4'
+      },
+      section: {
+        margin: 10,
+        padding: 10,
+        flexGrow: 1
+      }
+    });
+
+    var rt = 0;
+    var ec = 0;
+    var td = 0;
+
+    {apiData.map((test) => {
+      const testId = test[0];
+      const avgRespTime = test[2];
+      const errorCount = test[3];
+      const testDate = test[4];
+      if(testId == id){
+        rt = avgRespTime;
+        ec = errorCount;
+        td = testDate;
+      }
+      return (
+        <div class="list-group ">
+          <p> {rt} </p>
+          <p> {ec} </p>
+          <p> {td} </p>
+        </div>
+      );
+    })};
+
+    //myDoc is the pdf component
+    //grafik png dosyasi da burada eklenmeli
+    const MyDoc = () => (
+      <Document>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.section}>
+          <Text>resp time: {rt}</Text>
+          <Text>error count: {ec}</Text>
+          <Text>test date: {td}</Text>
+        </View>
+        </Page>
+      </Document>
+    );
+
 
     return (
       <div>
@@ -262,6 +312,10 @@ const App = () => {
               })}
             </section>
           )}
+
+<PDFDownloadLink document={<MyDoc />} fileName="somename.pdf">
+          {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Download now!')}
+        </PDFDownloadLink>
       </div>
     )
   }
