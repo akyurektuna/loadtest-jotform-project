@@ -2,7 +2,7 @@ import './App.css';
 import React, { useState,useEffect, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.css'
-import { Navbar, Nav, Button, Form, Container, Row, Col, Badge } from 'react-bootstrap'
+import { Navbar, Nav, Button, Form, Container, Row, Col, Badge, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import logo from "./jotform-logo2.png";
 import io from "socket.io-client";
 import {
@@ -64,8 +64,9 @@ const App = () => {
     const navigate = useNavigate();
     const [spawnrate, setspawnrate] = useState(0);
     const [subcount, setsubcount] = useState(0);
-    const [formid, setformid] = useState(0)
-    const [results,setresults]=useState(0)
+    const [formid, setformid] = useState(0);
+    const [results,setresults]=useState(0);
+    const [formhost, setformhost] = useState(0);
 
     const handleformid = (event) => {
       setformid(event.target.value)
@@ -76,6 +77,9 @@ const App = () => {
     }
     const handlesubchange = (event) => {
       setsubcount(event.target.value)
+    }
+    const handleformhost = (event) => {
+      setformhost(event.target.value)
     }
 
     async function handleSubmit(e) {
@@ -89,6 +93,11 @@ const App = () => {
       socket.emit("message",body);
       navigate('/results')
     }
+    const renderTooltip = (props) => (
+      <Tooltip id="button-tooltip" {...props}>
+      The test is performed on the form you have specified, depending on the number of clients and duration.
+      </Tooltip>
+    );
 
     return (
       <div class="centered">
@@ -132,7 +141,26 @@ const App = () => {
             </Form.Text>
             </Col>
         </Form.Group>
+        <Form.Group as= {Row}>
+          <Form.Label column sm = "2" >Host</Form.Label>
+          <Col sm="3">
+          <Form.Control type="text"
+            value={formhost}
+            onChange={handleformhost} 
+            />
+          <Form.Text className = "text-muted">
+           host bilgisi
+            </Form.Text>
+            </Col>
+        </Form.Group>
+        <OverlayTrigger
+          placement="bottom"
+          delay={{ show: 250, hide: 400 }}
+          overlay={renderTooltip}
+        >
+          
         <Button variant="secondary" type="submit" >Run Test</Button>
+        </OverlayTrigger>
         </Form>
 
       </Container>

@@ -36,7 +36,8 @@ def get_input(input):
     formId = input["formid"]
     #baseURL should be taken from the user
     #API Ufuk:507c5cf8b99fbed83bbeb42d3d0d7e1f || Tuna: 2da27739ce924bcaeb7957ab145b24d2
-    baseURL = "https://eejoinflowtest03nov2021test01.jotform.com"
+    #baseURL = "https://eejoinflowtest03nov2021test01.jotform.com"
+    baseURL = input["formhost"]
     apiKey = "507c5cf8b99fbed83bbeb42d3d0d7e1f"
     data = getFormQuestions(baseURL, formId, apiKey)
     content = data["content"]
