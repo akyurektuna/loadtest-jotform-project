@@ -36,8 +36,8 @@ def get_input(input):
     formId = input["formid"]
     #baseURL should be taken from the user
     #API Ufuk:507c5cf8b99fbed83bbeb42d3d0d7e1f || Tuna: 2da27739ce924bcaeb7957ab145b24d2
-    #baseURL = "https://eejoinflowtest03nov2021test01.jotform.com"
-    baseURL = input["formhost"]
+    baseURL = "https://eejoinflowtest03nov2021test01.jotform.com"
+    #baseURL = input["formhost"]
     apiKey = "507c5cf8b99fbed83bbeb42d3d0d7e1f"
     data = getFormQuestions(baseURL, formId, apiKey)
     content = data["content"]
@@ -50,6 +50,7 @@ def get_input(input):
     average=0
     code=0
     errors=0
+    done=False
     postBodyData = createMockData(jsonStr, count)
     today = datetime.datetime.now().date()
     d1 = today.strftime("%d/%m/%Y")
@@ -80,6 +81,10 @@ def get_input(input):
             code=int(task.result()[0])
             if(code!=200):
                 errors=errors+1
+
+            if(j+1==int(input["subcount"])):
+                done=True
+
             total_time=total_time+float(resp_time)
             average=float(total_time)/(j+1)
             
@@ -87,7 +92,8 @@ def get_input(input):
                 "name": j+1,
                 "value": resp_time,
                 "average":average,
-                "errors":errors
+                "errors":errors,
+                "done":done
             }
             print(resp_time)
             send(data)
@@ -105,8 +111,15 @@ def get_input(input):
     print("must last for: ", spawnRate)
     final_data=data
     #
-    insert_test(temp_url,average,errors,d1)
     return None
+
+@app.route('/database', methods=['POST','GET'])
+def Insert_db():
+    today = datetime.datetime.now().date()
+    d1 = today.strftime("%d/%m/%Y")
+    db_info = request.json
+    insert_test(db_info["graph"],db_info["average"],db_info["errors"],d1)
+    return "Data inserted"
     
 if __name__ == '__main__':
     socketIo.run(app)

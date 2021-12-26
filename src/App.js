@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import { Navbar, Nav, Button, Form, Container, Row, Col, Badge, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import logo from "./jotform-logo2.png";
 import io from "socket.io-client";
+import axios from 'axios';
 import {
   Line,
   LineChart,
@@ -46,16 +47,7 @@ const App = () => {
 
   //PNG INDIRME ->
   // useCurrentPng usage (isLoading is optional)
-  const [getPng, { ref: lineRef }] = useCurrentPng();
-  const handleDownload = useCallback(async () => {
-    const png = await getPng();
-    console.log(png);
-    // Verify that png is not undefined
-    if (png) {
-      // Download with FileSaver
-      FileSaver.saveAs(png, 'myChart.png');
-    }
-  }, [getPng]);
+ 
 
   const [isloading, setisloading] = useState(false)
   const[times,set_times]=useState([0])
@@ -210,14 +202,28 @@ const App = () => {
     const [data, setData] = useState([]);
     const[average,set_average]=useState(0);
     const[errors,set_errors]=useState(0);
+    const [isdone, set_isdone] = useState(false)
     
     useEffect(() =>{
       socket.on("message", (msg) => {
         set_errors(msg["errors"])
         set_average(msg["average"])
+        set_isdone(msg["done"])
         setData((currentData)=> [...currentData, msg]);
       });
-    }, []);
+    }, [isdone==true]);
+
+    const [getPng, { ref: lineRef }] = useCurrentPng();
+    async function insert_db(){
+      const png = await getPng();
+      console.log(png);
+      // Verify that png is not undefined
+      if (png) {
+        // Download with FileSaver
+        var data = { "graph": png, "average": average, "errors": errors }
+        axios.post("/database", data)
+      }
+    }
 
     return (
       <div>
@@ -229,8 +235,8 @@ const App = () => {
           <Line dataKey="value" />
         </LineChart>
         <br />
-        <button onClick={handleDownload}>
-        <code>Download line chart</code>
+        <button onClick={insert_db}>
+        <code>Insert into database</code>
       </button>
       </div>
         <h1>The Average is: {average.toFixed(2)}ms</h1> 
