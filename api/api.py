@@ -30,9 +30,11 @@ socketIo = SocketIO(app, cors_allowed_origins="*")
 app.debug = True
 app.host = 'localhost'
 
+
 @socketIo.on("message")
 def get_input(input):
     print(input)
+    global formId, baseURL, count, resultDuration
     formId = input["formid"]
     #baseURL should be taken from the user
     #API Ufuk:507c5cf8b99fbed83bbeb42d3d0d7e1f || Tuna: 2da27739ce924bcaeb7957ab145b24d2
@@ -106,8 +108,8 @@ def get_input(input):
     #debug
 
     currentTime = time.localtime()
-    result = time.strftime("%I:%M:%S", currentTime)
-    print("time after ",result)
+    resultDuration = time.strftime("%I:%M:%S", currentTime)
+    print("time after ",resultDuration)
     print("must last for: ", spawnRate)
     final_data=data
     #
@@ -118,7 +120,7 @@ def Insert_db():
     today = datetime.datetime.now().date()
     d1 = today.strftime("%d/%m/%Y")
     db_info = request.json
-    insert_test(db_info["graph"],db_info["average"],db_info["errors"],d1)
+    insert_test(db_info["graph"],db_info["average"],db_info["errors"],d1,formId,baseURL,count,resultDuration)
     return "Data inserted"
     
 if __name__ == '__main__':

@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-rout
 import 'bootstrap/dist/css/bootstrap.css'
 import { Navbar, Nav, Button, Form, Container, Row, Col, Badge, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import logo from "./jotform-logo2.png";
+import font from "./OpenSans-Light.ttf";
+import fontBold from "./OpenSans-Bold.ttf";
 import io from "socket.io-client";
 import axios from 'axios';
 import {
@@ -14,7 +16,8 @@ import {
 } from 'recharts';
 import { useCurrentPng } from 'recharts-to-png';
 import FileSaver from 'file-saver';
-import { PDFDownloadLink, Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { Font, Image, PDFDownloadLink, Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+
 
 
 let endPoint = "http://localhost:5000";
@@ -229,7 +232,7 @@ const App = () => {
       <div>
         <div className='line chart' >
         <h1>Response Time</h1>
-        <LineChart width={500} height={300} data={data} ref={lineRef}>
+        <LineChart width={700} height={300} data={data} ref={lineRef}>
           <XAxis dataKey="name"/>
           <YAxis/>
           <Line dataKey="value" />
@@ -270,32 +273,75 @@ const App = () => {
     const [apiData, setApiData] = useState([]);
     const [loading, setLoading] = useState(true);
     //deneme
+    Font.register({ family: 'OpenSans', src: font});
+    Font.register({ family: 'OpenSansBold', src: fontBold});
+
     const styles = StyleSheet.create({
       page: {
         flexDirection: 'row',
-        backgroundColor: '#E4E4E4'
+        backgroundColor: '#FFFFFF',
+        paddingLeft: 30,
+        paddingRight:40,
+        width: 10
       },
       section: {
         margin: 10,
         padding: 10,
-        flexGrow: 1
+        flexGrow: 1,
+        width: 10
+      },
+      text: {
+        fontFamily: 'OpenSans',
+        // borderBottom: "1px",
+        padding: "7px", 
+        fontSize: 11,
+        paddingRight: "30px"
+      },
+      title:{
+        fontSize: 15,
+        textAlign: 'center',
+        margin: 50,
+        fontFamily: 'OpenSansBold'
+      },
+      imgBaslik: {
+        FontFamily: 'OpenSansBold',
+        fontSize: 11,
+        paddingTop: 10
+      },
+      img: {
+        // paddingLeft: 30,
+        paddingRight:100,
+        paddingTop: 20
       }
     });
 
     var rt = 0;
     var ec = 0;
     var td = 0;
-
+    var iUrl = "";
+    var fid, bUrl, count, rDuration = "";
     {apiData.map((test) => {
       const testId = test[0];
+      const testImgUrl = test[1];
       const avgRespTime = test[2];
       const errorCount = test[3];
       const testDate = test[4];
+      const formid = test[5];
+      const baseUrl = test[6];
+      const clientCount = test[7];
+      const resultDuration = test[8];
+      
       if(testId == id){
         rt = avgRespTime;
         ec = errorCount;
         td = testDate;
+        iUrl = testImgUrl;
+        fid = formid;
+        bUrl = baseUrl;
+        count = clientCount;
+        rDuration = resultDuration;
       }
+      
       return (
         <div class="list-group ">
           <p> {rt} </p>
@@ -311,9 +357,17 @@ const App = () => {
       <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.section}>
-          <Text>resp time: {rt}</Text>
-          <Text>error count: {ec}</Text>
-          <Text>test date: {td}</Text>
+        <Text style={styles.title}>Test Report</Text>
+        <Text style={styles.imgBaslik}>Test Runs Overview</Text>
+          <Text style={styles.text}>Response Time: {rt}</Text>
+          <Text style={styles.text}>Total Errors: {ec}</Text>
+          <Text style={styles.text}>Test Date: {td}</Text>
+          <Text style={styles.text}>Form: {fid}</Text>
+          <Text style={styles.text}>Base URL: {bUrl}</Text>
+          <Text style={styles.text}>Number of Clients: {count}</Text>
+          <Text style={styles.text}>Test Duration: {rDuration} seconds</Text>
+          <Text style={styles.imgBaslik}>Average Response Times</Text>
+          <Image style={styles.img} src={iUrl} />
         </View>
         </Page>
       </Document>
@@ -347,8 +401,8 @@ const App = () => {
             </section>
           )}
 
-<PDFDownloadLink document={<MyDoc />} fileName="somename.pdf">
-          {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Download now!')}
+<PDFDownloadLink document={<MyDoc />} fileName="Test Report.pdf">
+          {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Download Summary Report')}
         </PDFDownloadLink>
       </div>
     )
