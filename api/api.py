@@ -135,10 +135,20 @@ try:
     cur = con.cursor()
 
     # GET: Fetch all test from the database
-    @app.route('/')
+    @app.route('/list')
     def fetch_all_tests():
         cur.execute('SELECT * FROM tests')
         rows = cur.fetchall()
+        print(rows)
+        
+        return jsonify(rows)
+
+
+    @app.route('/<int:id>')
+    def fetch_test(id):
+        print(id)
+        cur.execute("SELECT * FROM tests WHERE test_id ={0}".format(id))
+        rows = cur.fetchone()
         print(rows)
         
         return jsonify(rows)

@@ -25,27 +25,7 @@ let socket = io.connect(`${endPoint}`);
 
 const App = () => {
   //deneme
-    useEffect(() => {
-      const getAPI = () => {
-        // Change this endpoint to whatever local or online address you have
-        // Local PostgreSQL Database
-        const API = 'http://127.0.0.1:5000/';
 
-        fetch(API)
-            .then((response) => {
-              console.log(response);
-              return response.json();
-            })
-            .then((data) => {
-              console.log(data);
-              setLoading(false);
-              setApiData(data);
-            });
-      };
-      getAPI();
-  }, []);
-  const [apiData, setApiData] = useState([]);
-  const [loading, setLoading] = useState(true);
   //deneme
 
   //PNG INDIRME ->
@@ -238,9 +218,7 @@ const App = () => {
           <Line dataKey="value" />
         </LineChart>
         <br />
-        <button onClick={insert_db}>
-        <code>Insert into database</code>
-      </button>
+       {isdone && <button onClick={insert_db}><code>Insert into database</code></button>}
       </div>
         <h1>The Average is: {average.toFixed(2)}ms</h1> 
         <h1>Number of Errors: {errors}</h1> 
@@ -248,14 +226,20 @@ const App = () => {
     )
   }
 
-  function ShowTest(){
+  function ShowTest() {
     let { id } = useParams();
+    const [apiData, setApiData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    Font.register({ family: 'OpenSans', src: font});
+    Font.register({ family: 'OpenSansBold', src: fontBold});
+
+
     //deneme
     useEffect(() => {
-      const getAPI = () => {
+      const getTest = () => {
         // Change this endpoint to whatever local or online address you have
         // Local PostgreSQL Database
-        const API = 'http://127.0.0.1:5000/';
+        const API = 'http://127.0.0.1:5000/' + id;
 
         fetch(API)
           .then((response) => {
@@ -268,13 +252,17 @@ const App = () => {
             setApiData(data);
           });
       };
-      getAPI();
+      getTest();
     }, []);
-    const [apiData, setApiData] = useState([]);
-    const [loading, setLoading] = useState(true);
-    //deneme
-    Font.register({ family: 'OpenSans', src: font});
-    Font.register({ family: 'OpenSansBold', src: fontBold});
+    const testId = apiData[0];
+    const testImgUrl = apiData[1];
+    const avgRespTime = apiData[2];
+    const errorCount = apiData[3];
+    const testDate = apiData[4];
+    const formid = apiData[5];
+    const baseUrl = apiData[6];
+    const clientCount = apiData[7];
+    const resultDuration = apiData[8];
 
     const styles = StyleSheet.create({
       page: {
@@ -315,41 +303,6 @@ const App = () => {
       }
     });
 
-    var rt = 0;
-    var ec = 0;
-    var td = 0;
-    var iUrl = "";
-    var fid, bUrl, count, rDuration = "";
-    {apiData.map((test) => {
-      const testId = test[0];
-      const testImgUrl = test[1];
-      const avgRespTime = test[2];
-      const errorCount = test[3];
-      const testDate = test[4];
-      const formid = test[5];
-      const baseUrl = test[6];
-      const clientCount = test[7];
-      const resultDuration = test[8];
-      
-      if(testId == id){
-        rt = avgRespTime;
-        ec = errorCount;
-        td = testDate;
-        iUrl = testImgUrl;
-        fid = formid;
-        bUrl = baseUrl;
-        count = clientCount;
-        rDuration = resultDuration;
-      }
-      
-      return (
-        <div class="list-group ">
-          <p> {rt} </p>
-          <p> {ec} </p>
-          <p> {td} </p>
-        </div>
-      );
-    })};
 
     //myDoc is the pdf component
     //grafik png dosyasi da burada eklenmeli
@@ -359,15 +312,15 @@ const App = () => {
         <View style={styles.section}>
         <Text style={styles.title}>Test Report</Text>
         <Text style={styles.imgBaslik}>Test Runs Overview</Text>
-          <Text style={styles.text}>Response Time: {rt}</Text>
-          <Text style={styles.text}>Total Errors: {ec}</Text>
-          <Text style={styles.text}>Test Date: {td}</Text>
-          <Text style={styles.text}>Form: {fid}</Text>
-          <Text style={styles.text}>Base URL: {bUrl}</Text>
-          <Text style={styles.text}>Number of Clients: {count}</Text>
-          <Text style={styles.text}>Test Duration: {rDuration} seconds</Text>
+          <Text style={styles.text}>Response Time: {avgRespTime}ms</Text>
+          <Text style={styles.text}>Total Errors: {errorCount}</Text>
+          <Text style={styles.text}>Test Date: {testDate}</Text>
+          <Text style={styles.text}>Form: {formid}</Text>
+          <Text style={styles.text}>Base URL: {baseUrl}</Text>
+          <Text style={styles.text}>Number of Clients: {clientCount}</Text>
+          <Text style={styles.text}>Test Duration: {resultDuration} seconds</Text>
           <Text style={styles.imgBaslik}>Average Response Times</Text>
-          <Image style={styles.img} src={iUrl} />
+          <Image style={styles.img} src={testImgUrl} />
         </View>
         </Page>
       </Document>
@@ -378,28 +331,16 @@ const App = () => {
       <div>
         {loading === true ? (
           <div> <h1>Loading...</h1> </div>
-          ) : (
-            <section>
-              {apiData.map((test) => {
-                const testId = test[0];
-                const testImgUrl = test[1];
-                const avgRespTime = test[2];
-                const errorCount = test[3];
-                const testDate = test[4];
-                if(testId == id){
-                  return (
-                    <div>
-                      <img src={testImgUrl}/>
-                        <p> <strong>resp time:</strong> {avgRespTime} </p>
-                        <p> <strong>error count:</strong> {errorCount} </p>
-                        <p> <strong>test date:</strong> {testDate} </p>
-                    </div>
-                  );
-                }
+        ) : (
+          <div>
+            <img src={testImgUrl} />
+            <p> <strong>resp time:</strong> {avgRespTime} </p>
+            <p> <strong>error count:</strong> {errorCount} </p>
+            <p> <strong>test date:</strong> {testDate} </p>
+          </div>
+        )
+        }
 
-              })}
-            </section>
-          )}
 
 <PDFDownloadLink document={<MyDoc />} fileName="Test Report.pdf">
           {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Download Summary Report')}
@@ -410,12 +351,12 @@ const App = () => {
 
 
   function ListTests() {
-  //deneme
+    //deneme
     useEffect(() => {
       const getAPI = () => {
         // Change this endpoint to whatever local or online address you have
         // Local PostgreSQL Database
-        const API = 'http://127.0.0.1:5000/';
+        const API = 'http://127.0.0.1:5000/list';
 
         fetch(API)
           .then((response) => {
@@ -438,25 +379,25 @@ const App = () => {
       <div>
         {loading === true ? (
           <div> <h1>Loading...</h1> </div>
-          ) : (
-            <section>
-              {apiData.map((test) => {
-                const testId = test[0];
-                const testImgUrl = test[1];
-                const avgRespTime = test[2];
-                const errorCount = test[3];
-                const testDate = test[4];
+        ) : (
+          <section>
+            {apiData.map((test) => {
+              const testId = test[0];
+              const testImgUrl = test[1];
+              const avgRespTime = test[2];
+              const errorCount = test[3];
+              const testDate = test[4];
 
-                return (
-                  <div class="list-group ">
-                    <a href={`${testId}`} class="list-group-item list-group-item-action" > Test {testId} 
-                      {' '}<Badge bg="secondary">finished</Badge>
-                    </a>
-                  </div>
-                );
-              })}
-            </section>
-          )}
+              return (
+                <div class="list-group ">
+                  <a href={`${testId}`} class="list-group-item list-group-item-action" > Test {testId}
+                    {' '}<Badge bg="secondary">finished</Badge>
+                  </a>
+                </div>
+              );
+            })}
+          </section>
+        )}
       </div>
     )
   }
