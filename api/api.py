@@ -47,7 +47,11 @@ def get_input(input):
     jsonStr = serializeJson(listP)
     #count and spawnRate are taken from app.js
     count = input["subcount"]
-    spawnRate = input["spawnrate"]
+    spawnRateStr = input["spawnrate"]
+    spawnRate = int(spawnRateStr)/100
+    # print("**",type(spawnRate))
+    # print(spawnRate)
+
     total_time=0
     average=0
     code=0
@@ -62,6 +66,7 @@ def get_input(input):
    
     #debug
     timeBefore = datetime.datetime.now()
+    print(arrivingSeconds)
     #
     temp = 0
     j = 0

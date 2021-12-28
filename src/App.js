@@ -85,7 +85,7 @@ const App = () => {
             onChange={handlespawnchange} 
             />
           <Form.Text className = "text-muted">
-            ne kadar zaman
+            Test time in seconds
             </Form.Text>
             </Col>
         </Form.Group>
@@ -98,7 +98,7 @@ const App = () => {
             onChange={handlesubchange} 
             />
           <Form.Text className = "text-muted">
-            kac user filan
+            Virtual user count
             </Form.Text>
             </Col>
         </Form.Group>
@@ -111,7 +111,7 @@ const App = () => {
             onChange={handleformid} 
             />
           <Form.Text className = "text-muted">
-           form idsi
+           Form information
             </Form.Text>
             </Col>
         </Form.Group>
@@ -123,7 +123,7 @@ const App = () => {
             onChange={handleformhost} 
             />
           <Form.Text className = "text-muted">
-           host bilgisi
+           Base URL
             </Form.Text>
             </Col>
         </Form.Group>
