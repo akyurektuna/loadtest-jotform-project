@@ -40,7 +40,7 @@ def get_input(input):
     #API Ufuk:507c5cf8b99fbed83bbeb42d3d0d7e1f || Tuna: 2da27739ce924bcaeb7957ab145b24d2
     baseURL = "https://eejoinflowtest03nov2021test01.jotform.com"
     #baseURL = input["formhost"]
-    apiKey = "507c5cf8b99fbed83bbeb42d3d0d7e1f"
+    apiKey = "2da27739ce924bcaeb7957ab145b24d2"
     data = getFormQuestions(baseURL, formId, apiKey)
     content = data["content"]
     listP = convertTypeNames(content)
@@ -61,12 +61,8 @@ def get_input(input):
     arrivingSeconds = calculateArrivingSeconds(arrivalTimes)
    
     #debug
-    currentTime = time.localtime()
-    result = time.strftime("%I:%M:%S", currentTime)
-    print("time before ",result)
-    print("arriving seconds: ", arrivingSeconds)
+    timeBefore = datetime.datetime.now()
     #
-   
     temp = 0
     j = 0
    
@@ -107,8 +103,10 @@ def get_input(input):
     #Preparing the response data
     #debug
 
-    currentTime = time.localtime()
-    resultDuration = time.strftime("%I:%M:%S", currentTime)
+    timeAfter = datetime.datetime.now()
+    diff = timeAfter - timeBefore
+    resultDuration = str(diff.total_seconds()*1000)
+    
     print("time after ",resultDuration)
     print("must last for: ", spawnRate)
     final_data=data

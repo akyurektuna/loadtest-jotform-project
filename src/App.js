@@ -19,7 +19,6 @@ import FileSaver from 'file-saver';
 import { Font, Image, PDFDownloadLink, Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
 
-
 let endPoint = "http://localhost:5000";
 let socket = io.connect(`${endPoint}`);
 
@@ -205,24 +204,59 @@ const App = () => {
         // Download with FileSaver
         var data = { "graph": png, "average": average, "errors": errors }
         axios.post("/database", data)
+        window.location.href='/ListTests'
       }
+      
+    }
+    const rightDiv = {
+      paddingTop: "160px",
+    }
+ 
+    const leftDiv = {
+      paddingTop: "100px",
+      paddingRight:"20px"
+    }
+
+    const textStyling= {
+      fontFamily: "Open Sans",
+      fontSize: "20px",
+      fontWeight:"bold",
+      paddingBottom:"20px"
+    }
+    
+    const textStylingNormal={
+      fontFamily: "Open Sans",
+      fontSize: "20px",
     }
 
     return (
-      <div>
-        <div className='line chart' >
-        <h1>Response Time</h1>
-        <LineChart width={700} height={300} data={data} ref={lineRef}>
+      
+      <div class="d-flex justify-content-center">
+        <div className='line chart' style={leftDiv} >
+        <Text style={textStyling}>Response Time</Text>
+        <Container fluid>
+        <LineChart width={700} height={300} data={data} ref={lineRef} >
           <XAxis dataKey="name"/>
-          <YAxis/>
+          <YAxis type="number" domain={[0, 3000]} allowDataOverflow={true}/>
           <Line dataKey="value" />
         </LineChart>
+        </Container>
         <br />
-       {isdone && <button onClick={insert_db}><code>Insert into database</code></button>}
       </div>
-        <h1>The Average is: {average.toFixed(2)}ms</h1> 
-        <h1>Number of Errors: {errors}</h1> 
+      
+      <div class="d-flex flex-column" style={rightDiv}  >
+        <div class="p-2">
+        <Text style={textStyling}>Average Response Time: </Text> <Text style={textStylingNormal}>{average.toFixed(2)}ms</Text>
+        </div> 
+        <div class="p-2">
+        <Text style={textStyling}>Error Count:</Text> <Text style={textStylingNormal}> {errors}</Text> 
+        </div>
+        <div class="mb-auto p-2">
+        {isdone && <Button variant='secondary' onClick={insert_db}> <Text style={textStylingNormal}>{' '} Save Test Results {' '} </Text> </Button>}
+        </div>
+        </div>
       </div>
+      
     )
   }
 
@@ -326,25 +360,61 @@ const App = () => {
       </Document>
     );
 
+    const rightDiv = {
+      paddingTop: "160px",
+    }
+ 
+    const leftDiv = {
+      paddingTop: "100px",
+      paddingRight:"20px"
+    }
+
+    const textStyling= {
+      fontFamily: "Open Sans",
+      fontSize: "20px",
+      fontWeight:"bold",
+      paddingBottom:"20px"
+    }
+    
+    const textStylingNormal={
+      fontFamily: "Open Sans",
+      fontSize: "20px",
+    }
+    const deneme={
+      paddingBottom: "30px"
+    }
 
     return (
-      <div>
+      <div >
         {loading === true ? (
           <div> <h1>Loading...</h1> </div>
         ) : (
-          <div>
-            <img src={testImgUrl} />
-            <p> <strong>resp time:</strong> {avgRespTime} </p>
-            <p> <strong>error count:</strong> {errorCount} </p>
-            <p> <strong>test date:</strong> {testDate} </p>
+          <div class= "d-flex justify-content-center">
+            <div class="d-flex flex-column"  style={leftDiv}>
+            <div class="top-left" style={deneme}><Text style={textStyling}>Response Times </Text> </div>
+              <img width={700} height={300} src={testImgUrl} />
+              
+            </div>
+            <div class="d-flex flex-column" style={rightDiv}> 
+              <div class="p-2">
+                <Text style={textStyling}>Average Response Time: </Text> <Text style={textStylingNormal}>{avgRespTime}ms</Text>
+               </div> 
+               <div class="p-2">
+                <Text style={textStyling}>Error count: </Text> <Text style={textStylingNormal}>{errorCount}</Text>
+               </div> 
+               <div class="p-2">
+                <Text style={textStyling}>Date: </Text> <Text style={textStylingNormal}>{testDate}</Text>
+               </div>
+               <div>
+                <PDFDownloadLink document={<MyDoc />} fileName="Test Report.pdf">
+                  {({ blob, url, loading, error }) => (loading ? 'Loading document...' : <Text style={textStylingNormal}> Download Summary Report</Text>)}
+                 </PDFDownloadLink>
+                </div> 
+            </div>
           </div>
         )
         }
 
-
-<PDFDownloadLink document={<MyDoc />} fileName="Test Report.pdf">
-          {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Download Summary Report')}
-        </PDFDownloadLink>
       </div>
     )
   }
