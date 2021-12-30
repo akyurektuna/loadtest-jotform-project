@@ -62,7 +62,8 @@ const App = () => {
       var body = {
         subcount: subcount,
         spawnrate: spawnrate,
-        formid: formid
+        formid: formid,
+        formhost:formhost
       };
       socket.emit("message",body);
       navigate('/results')
@@ -352,7 +353,7 @@ const App = () => {
           <Text style={styles.text}>Form: {formid}</Text>
           <Text style={styles.text}>Base URL: {baseUrl}</Text>
           <Text style={styles.text}>Number of Clients: {clientCount}</Text>
-          <Text style={styles.text}>Test Duration: {resultDuration} seconds</Text>
+          <Text style={styles.text}>Test Duration: {(resultDuration/1000).toFixed(2)} seconds</Text>
           <Text style={styles.imgBaslik}>Average Response Times</Text>
           <Image style={styles.img} src={testImgUrl} />
         </View>
